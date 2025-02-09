@@ -3,16 +3,25 @@ import CardProduct from "../components/Fragments/CardProduct";
 import { Fragment, useState, useEffect, useRef } from "react";
 import Button from "../components/Elements/Button";
 import { getProducts } from "../service/productService";
-
-const email = localStorage.getItem("email");
+import { getUsername } from "../service/authService";
 
 const ProductsPage = () => {
   const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [products, setProducts] = useState([]);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     setCart(JSON.parse(localStorage.getItem("cart")) || []);
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setUsername(getUsername(token));
+    } else {
+      window.location.href = "/login";
+    }
   }, []);
 
   useEffect(() => {
@@ -33,8 +42,7 @@ const ProductsPage = () => {
   }, [cart, products]);
 
   const handleLogout = () => {
-    localStorage.removeItem("email");
-    localStorage.removeItem("password");
+    localStorage.removeItem("token");
     window.location.href = "/login";
   };
 
@@ -76,7 +84,7 @@ const ProductsPage = () => {
   return (
     <Fragment>
       <div className="bg-blue-600 flex justify-end items-center h-20 px-10 text-white">
-        {email}
+        {username}
         <Button classname="ml-5 bg-black" onClick={handleLogout}>
           Logout
         </Button>
@@ -146,7 +154,7 @@ const ProductsPage = () => {
                     ${" "}
                     {totalPrice.toLocaleString("id-ID", {
                       styles: "currency",
-                      currency: "IDR",
+                      currency: "USD",
                     })}
                   </b>
                 </td>
